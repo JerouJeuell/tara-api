@@ -12,14 +12,14 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('partnership_id');
             $table->uuid('created_by');
-            $table->string('name', 200);
+            $table->string('title', 200);
             $table->string('emoji', 10)->nullable();
             $table->decimal('target_amount', 12, 2);
             $table->char('currency', 3)->default('PHP');
             $table->date('target_date')->nullable();
             $table->enum('status', ['active', 'completed', 'archived'])->default('active');
             $table->timestamps();
-            $table->string('note', 200);
+            $table->string('notes', 200);
             $table->foreign('partnership_id')->references('id')->on('partnerships');
             $table->foreign('created_by')->references('id')->on('users');
         });

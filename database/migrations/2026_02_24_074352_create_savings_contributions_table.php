@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('goal_id');
             $table->uuid('contributed_by');
             $table->decimal('amount', 12, 2);
-            $table->string('note', 300)->nullable();
+            $table->string('notes', 300)->nullable();
             $table->date('contributed_at')->default(DB::raw('CURRENT_DATE'));
             $table->timestamps();
 
