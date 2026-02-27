@@ -2,30 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class SavingsContribution extends Model
 {
     use HasUuids;
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-
     protected $fillable = [
         'goal_id',
         'contributed_by',
         'amount',
-        'note',
+        'notes',
         'contributed_at',
     ];
 
     protected $casts = [
         'amount'         => 'decimal:2',
-        'contributed_at' => 'date',
+        'contributed_at' => 'datetime',
     ];
-
-    // ── Relationships ──
 
     public function goal()
     {

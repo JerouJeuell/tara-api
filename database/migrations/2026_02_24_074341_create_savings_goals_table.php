@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('target_date')->nullable();
             $table->enum('status', ['active', 'completed', 'archived'])->default('active');
             $table->timestamps();
-
+            $table->string('note', 200);
             $table->foreign('partnership_id')->references('id')->on('partnerships');
             $table->foreign('created_by')->references('id')->on('users');
         });

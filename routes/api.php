@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PartnershipController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\ChecklistController;
+use App\Http\Controllers\Api\SavingsController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public Routes ──
@@ -40,5 +41,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('checklists/{id}/items',                    [ChecklistController::class, 'addItem']);
     Route::patch('checklists/{id}/items/{itemId}/toggle',   [ChecklistController::class, 'toggleItem']);
     Route::delete('checklists/{id}/items/{itemId}',         [ChecklistController::class, 'deleteItem']);
+
+    // Savings
+    Route::apiResource('savings', SavingsController::class)->only([
+        'index', 'store', 'destroy'
+    ]);
+    Route::post('savings/{id}/contributions',                           [SavingsController::class, 'addContribution']);
+    Route::delete('savings/{id}/contributions/{contributionId}',        [SavingsController::class, 'deleteContribution']);
 
 });

@@ -2,34 +2,31 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class SavingsGoal extends Model
 {
-    use HasFactory, HasUuids;
-
-    public $incrementing = false;
-    protected $keyType = 'string';
+    use HasUuids;
 
     protected $fillable = [
         'partnership_id',
         'created_by',
-        'name',
+        'title',
         'emoji',
         'target_amount',
-        'currency',
+        'current_amount',
         'target_date',
-        'status',
+        'notes',
+        'is_achieved',
     ];
 
     protected $casts = [
-        'target_amount' => 'decimal:2',
-        'target_date'   => 'date',
+        'target_amount'  => 'decimal:2',
+        'current_amount' => 'decimal:2',
+        'is_achieved'    => 'boolean',
+        'target_date'    => 'date',
     ];
-
-    // ── Relationships ──
 
     public function partnership()
     {
@@ -46,21 +43,19 @@ class SavingsGoal extends Model
         return $this->hasMany(SavingsContribution::class, 'goal_id');
     }
 
-    // ── Helpers ──
-
-    public function totalSaved(): float
+    public function totalSaved()
     {
-        return (float) $this->contributions()->sum('amount');
+        return $this->contributions()->sum('amount');
     }
 
-    public function progressPercentage(): int
+    public function progressPercentage()
     {
         if ($this->target_amount <= 0) return 0;
-        return (int) min(round(($this->totalSaved() / $this->target_amount) * 100), 100);
+        return min(100, round(($this->totalSaved() / $this->target_amount) * 100));
     }
 
-    public function remaining(): float
+    public function remaining()
     {
-        return max(0, (float) $this->target_amount - $this->totalSaved());
+        return max(0, $this->target_amount - $this->totalSaved());
     }
 }
