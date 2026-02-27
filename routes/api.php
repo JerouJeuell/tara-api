@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PartnershipController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\ChecklistController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public Routes ──
@@ -31,5 +32,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Events
     Route::apiResource('events', EventController::class);
+
+    // Checklists
+    Route::apiResource('checklists', ChecklistController::class)->only([
+        'index', 'store', 'show', 'destroy'
+    ]);
+    Route::post('checklists/{id}/items',                    [ChecklistController::class, 'addItem']);
+    Route::patch('checklists/{id}/items/{itemId}/toggle',   [ChecklistController::class, 'toggleItem']);
+    Route::delete('checklists/{id}/items/{itemId}',         [ChecklistController::class, 'deleteItem']);
 
 });

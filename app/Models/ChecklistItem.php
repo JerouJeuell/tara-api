@@ -15,7 +15,7 @@ class ChecklistItem extends Model
     protected $fillable = [
         'checklist_id',
         'assigned_to',
-        'label',
+        'title',
         'is_completed',
         'completed_by',
         'completed_at',
