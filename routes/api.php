@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PartnershipController;
+use App\Http\Controllers\Api\EventController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public Routes ──
@@ -21,11 +22,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Partnerships
     Route::prefix('partnerships')->group(function () {
-        Route::get('/',          [PartnershipController::class, 'me']);
-        Route::post('/invite',   [PartnershipController::class, 'invite']);
-        Route::post('/accept',   [PartnershipController::class, 'accept']);
-        Route::delete('/leave',  [PartnershipController::class, 'leave']);
-        Route::get('/pending',   [PartnershipController::class, 'pending']);
+        Route::get('/',         [PartnershipController::class, 'me']);
+        Route::post('/invite',  [PartnershipController::class, 'invite']);
+        Route::post('/accept',  [PartnershipController::class, 'accept']);
+        Route::delete('/leave', [PartnershipController::class, 'leave']);
+        Route::get('/pending',  [PartnershipController::class, 'pending']);
     });
+
+    // Events
+    Route::apiResource('events', EventController::class);
 
 });
