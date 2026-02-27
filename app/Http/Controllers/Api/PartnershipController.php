@@ -12,71 +12,52 @@ class PartnershipController extends Controller
 {
     // ── Send Invite ──
     public function invite(Request $request)
-    {
-        $validated = $request->validate([
-            'invite_code' => 'required|string',
-        ]);
+{
+    $validated = $request->validate([
+        'invite_code' => 'required|string',
+    ]);
 
-        $sender = $request->user();
+    $sender = $request->user();
 
-        // Can't invite yourself
-        if ($sender->invite_code === $validated['invite_code']) {
-            return response()->json([
-                'message' => 'You cannot invite yourself.',
-            ], 422);
-        }
-
-        // Find the partner by invite code
-        $partner = User::where('invite_code', $validated['invite_code'])->first();
-
-        if (!$partner) {
-            return response()->json([
-                'message' => 'Invalid invite code. No user found.',
-            ], 404);
-        }
-
-        // Check sender doesn't already have an active partnership
-        if ($this->hasActivePartnership($sender->id)) {
-            return response()->json([
-                'message' => 'You are already in a partnership.',
-            ], 422);
-        }
-
-        // Check partner doesn't already have an active partnership
-        if ($this->hasActivePartnership($partner->id)) {
-            return response()->json([
-                'message' => 'This person is already in a partnership.',
-            ], 422);
-        }
-
-        // Check if invite already exists between these two
-        $existing = Partnership::where(function ($q) use ($sender, $partner) {
-            $q->where('user_a_id', $sender->id)
-              ->where('user_b_id', $partner->id);
-        })->orWhere(function ($q) use ($sender, $partner) {
-            $q->where('user_a_id', $partner->id)
-              ->where('user_b_id', $sender->id);
-        })->where('status', 'pending')->first();
-
-        if ($existing) {
-            return response()->json([
-                'message' => 'Invite already sent.',
-            ], 422);
-        }
-
-        // Create the partnership invite
-        $partnership = Partnership::create([
-            'user_a_id'    => $sender->id,
-            'user_b_id'    => $partner->id,
-            'initiated_by' => $sender->id,
-            'status'       => 'pending',
-        ]);
-
-        return response()->json([
-            'message'     => 'Invite sent successfully!',
-            'partnership' => $partnership->load(['userA', 'userB']),
-        ], 201);
+    if ($sender->invite_code === $validated['invite_code']) {
+        return response()->json(['message' => 'You cannot invite yourself.'], 422);
     }
+
+    $partner = User::where('invite_code', $validated['invite_code'])->first();
+
+    if (!$partner) {
+        return response()->json(['message' => 'Invalid invite code. No user found.'], 404);
+    }
+
+    if ($this->hasActivePartnership($sender->id)) {
+        return response()->json(['message' => 'You are already in a partnership.'], 422);
+    }
+
+    if ($this->hasActivePartnership($partner->id)) {
+        return response()->json(['message' => 'This person is already in a partnership.'], 422);
+    }
+
+    // ── Clean up any old pending invites between two users ──
+    Partnership::where(function ($q) use ($sender, $partner) {
+        $q->where('user_a_id', $sender->id)->where('user_b_id', $partner->id);
+    })->orWhere(function ($q) use ($sender, $partner) {
+        $q->where('user_a_id', $partner->id)->where('user_b_id', $sender->id);
+    })->whereIn('status', ['pending', 'dissolved'])
+    ->update(['status' => 'archived']);
+
+    // Create fresh invite
+    $partnership = Partnership::create([
+    'user_a_id'    => $sender->id,
+    'user_b_id'    => $partner->id,
+    'initiated_by' => $sender->id,
+    'status'       => 'pending',
+    ]);
+
+    return response()->json([
+        'message'     => 'Invite sent successfully!',
+        'partnership' => $partnership->load(['userA', 'userB']),
+    ], 201);
+}
 
     // ── Accept Invite ──
     public function accept(Request $request)
