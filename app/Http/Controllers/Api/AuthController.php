@@ -15,23 +15,37 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'display_name' => 'required|string|max:100',
-            'email'        => 'required|email|unique:users,email',
-            'password'     => 'required|string|min:8|confirmed',
+            'display_name' => 'required|string|min:2|max:100',
+            'email'        => 'required|email:rfc,dns|unique:users,email|max:200',
+            'password'     => [
+                'required',
+                'confirmed',
+                'min:8',
+                'max:64',
+                'regex:/[A-Z]/',      // at least one uppercase
+                'regex:/[a-z]/',      // at least one lowercase
+                'regex:/[0-9]/',      // at least one number
+            ],
+        ], [
+            'email.email'          => 'Please enter a valid email address.',
+            'password.regex'       => 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
+            'password.min'         => 'Password must be at least 8 characters.',
+            'display_name.min'     => 'Name must be at least 2 characters.',
         ]);
-
+    
         $user = User::create([
             'display_name' => $validated['display_name'],
-            'email'        => $validated['email'],
-            'password_hash'=> Hash::make($validated['password']),
-            'invite_code'  => $this->generateInviteCode(),
+            'email'        => strtolower(trim($validated['email'])),
+            'password'     => Hash::make($validated['password']),
+            'invite_code'  => 'TRA-' . strtoupper(Str::random(8)),
         ]);
-
-        $token = $user->createToken('tara-app')->plainTextToken;
-
+    
+        $token = $user->createToken('auth_token')->plainTextToken;
+    
         return response()->json([
-            'user'  => $user,
-            'token' => $token,
+            'message' => 'Account created successfully!',
+            'user'    => $user,
+            'token'   => $token,
         ], 201);
     }
 

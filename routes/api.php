@@ -8,13 +8,13 @@ use App\Http\Controllers\Api\SavingsController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public Routes ──
-Route::prefix('auth')->group(function () {
+Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login',    [AuthController::class, 'login']);
 });
 
 // ── Protected Routes ──
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'throttle:api' ,'partnership')->group(function () {
 
     // Auth
     Route::prefix('auth')->group(function () {

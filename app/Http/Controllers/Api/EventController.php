@@ -11,22 +11,22 @@ use Illuminate\Http\Request;
 class EventController extends Controller
 {
     // ── Helper: Get active partnership or fail ──
-    private function getPartnership(Request $request)
-    {
-        $user = $request->user();
+    // private function getPartnership(Request $request)
+    // {
+    //     $user = $request->user();
 
-        $partnership = Partnership::where(function ($q) use ($user) {
-            $q->where('user_a_id', $user->id)
-              ->orWhere('user_b_id', $user->id);
-        })->where('status', 'active')->first();
+    //     $partnership = Partnership::where(function ($q) use ($user) {
+    //         $q->where('user_a_id', $user->id)
+    //           ->orWhere('user_b_id', $user->id);
+    //     })->where('status', 'active')->first();
 
-        return $partnership;
-    }
+    //     return $partnership;
+    // }
 
     // ── List Events ──
     public function index(Request $request)
     {
-        $partnership = $this->getPartnership($request);
+        $partnership = $request->partnership;
 
         if (!$partnership) {
             return response()->json([
@@ -46,7 +46,7 @@ class EventController extends Controller
     // ── Create Event ──
     public function store(Request $request)
     {
-        $partnership = $this->getPartnership($request);
+        $partnership = $request->partnership;
 
         if (!$partnership) {
             return response()->json([
@@ -99,7 +99,7 @@ class EventController extends Controller
     // ── Get Single Event ──
     public function show(Request $request, string $id)
     {
-        $partnership = $this->getPartnership($request);
+        $partnership = $request->partnership;
 
         $event = Event::where('id', $id)
             ->where('partnership_id', $partnership?->id)
@@ -116,7 +116,7 @@ class EventController extends Controller
     // ── Update Event ──
     public function update(Request $request, string $id)
     {
-        $partnership = $this->getPartnership($request);
+        $partnership = $request->partnership;
 
         $event = Event::where('id', $id)
             ->where('partnership_id', $partnership?->id)
@@ -162,7 +162,7 @@ class EventController extends Controller
     // ── Delete Event ──
     public function destroy(Request $request, string $id)
     {
-        $partnership = $this->getPartnership($request);
+        $partnership = $request->partnership;
 
         $event = Event::where('id', $id)
             ->where('partnership_id', $partnership?->id)
