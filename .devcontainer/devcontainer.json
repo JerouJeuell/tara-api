@@ -1,0 +1,27 @@
+{
+    "name": "Tara API",
+    "image": "mcr.microsoft.com/devcontainers/php:8.2",
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "20"
+        }
+    },
+    "postCreateCommand": "composer install && cp .env.example .env && php artisan key:generate",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bmewburn.vscode-intelephense-client",
+                "mrmlnc.vscode-apache",
+                "humao.rest-client",
+                "rangav.vscode-thunder-client"
+            ]
+        }
+    },
+    "forwardPorts": [8000],
+    "portsAttributes": {
+        "8000": {
+            "label": "Laravel API",
+            "onAutoForward": "notify"
+        }
+    }
+}
